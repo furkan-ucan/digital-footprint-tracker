@@ -1,0 +1,425 @@
+---
+description:  Versiyon Kontrolü ve Commit Mesajları Kuralları
+globs: 
+alwaysApply: false
+---
+
+# Your rule content
+
+# Dijital Ayak İzi İzleyici - Versiyon Kontrolü ve Commit Mesajları Kuralları
+
+## İçindekiler
+
+1. [Git Branching Stratejisi](#1-git-branching-stratejisi)
+2. [Commit Mesajları Standartları](#2-commit-mesajları-standartları)
+3. [Kod İnceleme ve Merge Süreçleri](#3-kod-inceleme-ve-merge-süreçleri)
+4. [Sürüm Yönetimi](#4-sürüm-yönetimi)
+5. [CI/CD Entegrasyonu](#5-cicd-entegrasyonu)
+
+## 1. Git Branching Stratejisi
+
+### 1.1 Branch Yapısı
+
+```typescript
+interface BranchStructure {
+  main: {
+    description: "Production ortamında çalışan kararlı sürüm";
+    protection: true;
+    requiresApproval: true;
+    autoDeployTo: "production";
+  };
+
+  develop: {
+    description: "Geliştirme ortamındaki ana branch";
+    protection: true;
+    requiresApproval: true;
+    autoDeployTo: "staging";
+  };
+
+  feature: {
+    pattern: "feature/{issue-id}-{feature-name}";
+    basedOn: "develop";
+    naming: {
+      allowed: "^feature/[A-Z]+-[0-9]+[-a-z0-9]+$";
+      example: "feature/TRACK-123-user-privacy-score";
+    };
+  };
+
+  bugfix: {
+    pattern: "bugfix/{issue-id}-{bug-description}";
+    basedOn: "develop";
+    naming: {
+      allowed: "^bugfix/[A-Z]+-[0-9]+[-a-z0-9]+$";
+      example: "bugfix/TRACK-456-fix-tracking-detection";
+    };
+  };
+
+  hotfix: {
+    pattern: "hotfix/{version}-{fix-description}";
+    basedOn: "main";
+    naming: {
+      allowed: "^hotfix/[0-9]+.[0-9]+.[0-9]+[-a-z0-9]+$";
+      example: "hotfix/1.2.3-critical-security-fix";
+    };
+  };
+
+  release: {
+    pattern: "release/{version}";
+    basedOn: "develop";
+    naming: {
+      allowed: "^release/[0-9]+.[0-9]+.[0-9]+$";
+      example: "release/1.2.0";
+    };
+  };
+}
+```
+
+### 1.2 Branch Yaşam Döngüsü
+
+```typescript
+interface BranchLifecycle {
+  feature: {
+    create: {
+      from: "develop";
+      command: "git checkout -b feature/TRACK-123 develop";
+    };
+    update: {
+      frequency: "daily";
+      command: "git pull origin develop --rebase";
+    };
+    complete: {
+      mergeStrategy: "squash";
+      deleteAfterMerge: true;
+    };
+  };
+
+  release: {
+    create: {
+      from: "develop";
+      timing: "sprint-end";
+    };
+    testing: {
+      environment: "staging";
+      duration: "1-week";
+    };
+    complete: {
+      mergeInto: ["main", "develop"];
+      tag: true;
+      deleteAfterMerge: true;
+    };
+  };
+
+  hotfix: {
+    create: {
+      from: "main";
+      priority: "high";
+    };
+    complete: {
+      mergeInto: ["main", "develop"];
+      tag: true;
+      deleteAfterMerge: true;
+    };
+  };
+}
+```
+
+## 2. Commit Mesajları Standartları
+
+### 2.1 Commit Mesaj Formatı
+
+```typescript
+interface CommitMessageFormat {
+  structure: {
+    type: "feat" | "fix" | "docs" | "style" | "refactor" | "test" | "chore";
+    scope: string;
+    subject: string;
+    body?: string;
+    footer?: string;
+  };
+
+  format: `${type}(${scope}): ${subject}
+
+${body}
+
+${footer}`;
+
+  rules: {
+    type: {
+      required: true;
+      values: [
+        "feat", // Yeni özellik
+        "fix", // Hata düzeltmesi
+        "docs", // Dokümantasyon değişiklikleri
+        "style", // Kod stili değişiklikleri
+        "refactor", // Kod refactoring
+        "test", // Test değişiklikleri
+        "chore" // Yapılandırma değişiklikleri
+      ];
+    };
+
+    scope: {
+      required: true;
+      values: [
+        "auth", // Kimlik doğrulama
+        "api", // API değişiklikleri
+        "ui", // Kullanıcı arayüzü
+        "core", // Çekirdek fonksiyonlar
+        "tracking", // İzleme fonksiyonları
+        "privacy", // Gizlilik ayarları
+        "deps" // Bağımlılıklar
+      ];
+    };
+
+    subject: {
+      maxLength: 72;
+      case: "lowercase";
+      endWithDot: false;
+    };
+  };
+}
+```
+
+### 2.2 Örnek Commit Mesajları
+
+```yaml
+Özellik Ekleme:
+  message: |
+    feat(tracking): implement real-time tracker detection
+
+    - Add WebSocket connection for live updates
+    - Implement tracker pattern matching
+    - Add user notification system
+
+    Resolves: TRACK-123
+
+Hata Düzeltme:
+  message: |
+    fix(auth): resolve token refresh issue
+
+    - Fix JWT expiration check
+    - Add token refresh retry mechanism
+
+    Fixes: TRACK-456
+
+Dokümantasyon:
+  message: |
+    docs(api): update API documentation
+
+    - Add new endpoint descriptions
+    - Update authentication examples
+    - Add rate limiting information
+
+Refactoring:
+  message: |
+    refactor(core): improve tracker analysis performance
+
+    - Optimize pattern matching algorithm
+    - Implement caching mechanism
+
+    Performance: 50% faster tracker detection
+```
+
+## 3. Kod İnceleme ve Merge Süreçleri
+
+### 3.1 Pull Request Şablonu
+
+```markdown
+## 🔍 Değişiklik Türü
+
+- [ ] Yeni özellik
+- [ ] Hata düzeltmesi
+- [ ] Performans iyileştirmesi
+- [ ] Dokümantasyon güncellemesi
+
+## 📝 Açıklama
+
+<!-- Değişikliklerin detaylı açıklaması -->
+
+## 🔗 İlgili Issue
+
+<!-- Issue numarası (TRACK-XXX) -->
+
+## ✅ Kontrol Listesi
+
+- [ ] Testler eklendi/güncellendi
+- [ ] Dokümantasyon güncellendi
+- [ ] Lint kuralları kontrol edildi
+- [ ] TypeScript type check yapıldı
+- [ ] Branch güncel (develop ile rebase edildi)
+
+## 📸 Ekran Görüntüleri
+
+<!-- UI değişiklikleri varsa ekran görüntüleri -->
+```
+
+### 3.2 Code Review Kriterleri
+
+```typescript
+interface CodeReviewStandards {
+  requirements: {
+    minReviewers: 2;
+    maxReviewers: 4;
+    requiredApprovals: 2;
+    waitTimeBeforeMerge: "24h";
+  };
+
+  automatedChecks: {
+    required: [
+      "lint",
+      "type-check",
+      "unit-tests",
+      "integration-tests",
+      "e2e-tests"
+    ];
+    coverage: {
+      minimum: 85;
+      delta: -0.5; // İzin verilen maksimum düşüş
+    };
+  };
+
+  reviewFocus: {
+    functionality: ["Logic correctness", "Edge cases", "Error handling"];
+    security: ["Input validation", "Authentication checks", "Data encryption"];
+    performance: [
+      "Algorithm efficiency",
+      "Resource usage",
+      "Query optimization"
+    ];
+    maintainability: ["Code readability", "Documentation", "Design patterns"];
+  };
+}
+```
+
+## 4. Sürüm Yönetimi
+
+### 4.1 Semantic Versioning
+
+```typescript
+interface VersioningConfig {
+  format: "MAJOR.MINOR.PATCH";
+
+  rules: {
+    major: {
+      description: "Geriye uyumsuz API değişiklikleri";
+      increment: "x.0.0";
+    };
+    minor: {
+      description: "Geriye uyumlu fonksiyonelite değişiklikleri";
+      increment: "1.x.0";
+    };
+    patch: {
+      description: "Geriye uyumlu hata düzeltmeleri";
+      increment: "1.1.x";
+    };
+  };
+
+  prerelease: {
+    alpha: "x.x.x-alpha.1";
+    beta: "x.x.x-beta.1";
+    rc: "x.x.x-rc.1";
+  };
+
+  tags: {
+    format: "v${version}";
+    signed: true;
+    gpgKey: "release@digitalfootprint.com";
+  };
+}
+```
+
+### 4.2 Release Notes
+
+```typescript
+interface ReleaseNotesTemplate {
+  sections: {
+    summary: string;
+    newFeatures: Feature[];
+    bugFixes: Fix[];
+    security: SecurityUpdate[];
+    deprecations: Deprecation[];
+  };
+
+  format: `# Release v${version}
+
+## 📝 Özet
+${summary}
+
+## ✨ Yeni Özellikler
+${newFeatures.map(f => `- ${f.description}`)}
+
+## 🐛 Hata Düzeltmeleri
+${bugFixes.map(f => `- ${f.description}`)}
+
+## 🔒 Güvenlik Güncellemeleri
+${security.map(s => `- ${s.description}`)}
+
+## ⚠️ Deprecation Notları
+${deprecations.map(d => `- ${d.description}`)}`;
+}
+```
+
+## 5. CI/CD Entegrasyonu
+
+### 5.1 Branch Koruma Kuralları
+
+```typescript
+interface BranchProtectionRules {
+  protected: ["main", "develop", "release/*"];
+
+  rules: {
+    requirePullRequest: true;
+    requiredApprovals: 2;
+    dismissStaleReviews: true;
+    requireBranchUpToDate: true;
+
+    statusChecks: {
+      required: ["build", "test", "lint", "security-scan", "coverage"];
+      strict: true;
+    };
+
+    restrictions: {
+      pushAccess: ["maintainers"];
+      forceProtection: true;
+      allowForcePushFor: ["release-manager"];
+    };
+  };
+}
+```
+
+### 5.2 Otomatik Merge Kuralları
+
+```typescript
+interface AutoMergeConfig {
+  enabled: true;
+
+  conditions: {
+    requiredChecks: ["build", "test", "security"];
+    requiredApprovals: 2;
+    noConflicts: true;
+    upToDate: true;
+  };
+
+  strategy: {
+    default: "squash";
+    options: {
+      squash: {
+        enabled: true;
+        messageTemplate: "${type}(${scope}): ${subject}";
+      };
+      rebase: {
+        enabled: true;
+        preserveCommits: false;
+      };
+      merge: {
+        enabled: false;
+      };
+    };
+  };
+
+  notifications: {
+    success: ["author", "reviewers"];
+    failure: ["author", "maintainers"];
+    channels: ["email", "slack"];
+  };
+}
+```

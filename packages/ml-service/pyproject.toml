@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "digital-footprint-tracker-ml"
+version = "1.0.0"
+description = "Machine Learning service for Digital Footprint Tracker"
+authors = ["Solo Developer"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.109.0"
+uvicorn = "^0.27.0"
+scikit-learn = "^1.4.0"
+pandas = "^2.2.0"
+numpy = "^1.26.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^8.0.0"
+black = "^24.1.0"
+isort = "^5.13.0"
+mypy = "^1.8.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ['py39']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3 

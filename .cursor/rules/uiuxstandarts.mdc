@@ -1,0 +1,489 @@
+---
+description:  UI/UX ve Dashboard Tasarımı Kuralları
+globs: 
+alwaysApply: false
+---
+
+# Your rule content
+
+# Dijital Ayak İzi İzleyici - UI/UX ve Dashboard Tasarımı Kuralları
+
+## İçindekiler
+
+1. [Tasarım Sistemi Temelleri](#1-tasarım-sistemi-temelleri)
+2. [Bileşen Kütüphanesi](#2-bileşen-kütüphanesi)
+3. [Veri Görselleştirme](#3-veri-görselleştirme)
+4. [Erişilebilirlik Standartları](#4-erişilebilirlik-standartları)
+5. [Kullanıcı Geri Bildirimi](#5-kullanıcı-geri-bildirimi)
+
+## 1. Tasarım Sistemi Temelleri
+
+### 1.1 Responsive Tasarım Breakpoints
+
+```typescript
+interface BreakpointConfig {
+  breakpoints: {
+    xs: "320px"; // Mobile S
+    sm: "375px"; // Mobile M
+    md: "768px"; // Tablet
+    lg: "1024px"; // Desktop
+    xl: "1440px"; // Large Desktop
+    xxl: "1920px"; // Extra Large Desktop
+  };
+
+  containers: {
+    xs: "100%";
+    sm: "540px";
+    md: "720px";
+    lg: "960px";
+    xl: "1140px";
+    xxl: "1320px";
+  };
+
+  grid: {
+    columns: 12;
+    gap: "1rem";
+    margins: {
+      mobile: "16px";
+      tablet: "32px";
+      desktop: "64px";
+    };
+  };
+}
+```
+
+### 1.2 Renk Paleti
+
+```typescript
+interface ColorSystem {
+  brand: {
+    primary: {
+      main: "#2563EB"; // Ana marka rengi
+      light: "#60A5FA"; // Açık ton
+      dark: "#1E40AF"; // Koyu ton
+    };
+    secondary: {
+      main: "#10B981"; // İkincil renk
+      light: "#34D399"; // Açık ton
+      dark: "#059669"; // Koyu ton
+    };
+  };
+
+  semantic: {
+    success: "#22C55E";
+    warning: "#F59E0B";
+    error: "#EF4444";
+    info: "#3B82F6";
+  };
+
+  neutral: {
+    white: "#FFFFFF";
+    black: "#000000";
+    gray: {
+      50: "#F9FAFB";
+      100: "#F3F4F6";
+      200: "#E5E7EB";
+      300: "#D1D5DB";
+      400: "#9CA3AF";
+      500: "#6B7280";
+      600: "#4B5563";
+      700: "#374151";
+      800: "#1F2937";
+      900: "#111827";
+    };
+  };
+
+  themes: {
+    light: {
+      background: "@neutral.white";
+      text: "@neutral.gray.900";
+      surface: "@neutral.gray.50";
+    };
+    dark: {
+      background: "@neutral.gray.900";
+      text: "@neutral.gray.50";
+      surface: "@neutral.gray.800";
+    };
+  };
+}
+```
+
+### 1.3 Tipografi
+
+```typescript
+interface TypographySystem {
+  fontFamilies: {
+    primary: "Inter";
+    secondary: "SF Pro Display";
+    monospace: "SF Mono";
+  };
+
+  fontSizes: {
+    xs: "0.75rem"; // 12px
+    sm: "0.875rem"; // 14px
+    base: "1rem"; // 16px
+    lg: "1.125rem"; // 18px
+    xl: "1.25rem"; // 20px
+    "2xl": "1.5rem"; // 24px
+    "3xl": "1.875rem"; // 30px
+    "4xl": "2.25rem"; // 36px
+  };
+
+  fontWeights: {
+    light: 300;
+    regular: 400;
+    medium: 500;
+    semibold: 600;
+    bold: 700;
+  };
+
+  lineHeights: {
+    tight: 1.25;
+    base: 1.5;
+    loose: 1.75;
+  };
+
+  letterSpacing: {
+    tight: "-0.025em";
+    normal: "0";
+    wide: "0.025em";
+  };
+}
+```
+
+## 2. Bileşen Kütüphanesi
+
+### 2.1 Temel Bileşenler
+
+```typescript
+interface ComponentSystem {
+  button: {
+    variants: {
+      primary: {
+        background: "@brand.primary.main";
+        color: "@neutral.white";
+        hover: "@brand.primary.dark";
+      };
+      secondary: {
+        background: "transparent";
+        border: "1px solid @brand.primary.main";
+        color: "@brand.primary.main";
+      };
+      ghost: {
+        background: "transparent";
+        color: "@brand.primary.main";
+      };
+    };
+
+    sizes: {
+      sm: {
+        padding: "0.5rem 1rem";
+        fontSize: "@typography.sm";
+      };
+      md: {
+        padding: "0.75rem 1.5rem";
+        fontSize: "@typography.base";
+      };
+      lg: {
+        padding: "1rem 2rem";
+        fontSize: "@typography.lg";
+      };
+    };
+  };
+
+  input: {
+    variants: {
+      outline: {
+        border: "1px solid @neutral.gray.300";
+        borderRadius: "0.375rem";
+      };
+      filled: {
+        background: "@neutral.gray.100";
+        borderRadius: "0.375rem";
+      };
+    };
+
+    states: {
+      focus: {
+        borderColor: "@brand.primary.main";
+        shadow: "0 0 0 2px rgba(37, 99, 235, 0.2)";
+      };
+      error: {
+        borderColor: "@semantic.error";
+        shadow: "0 0 0 2px rgba(239, 68, 68, 0.2)";
+      };
+    };
+  };
+}
+```
+
+### 2.2 Animasyon ve Geçişler
+
+```typescript
+interface AnimationSystem {
+  durations: {
+    instant: "0ms";
+    fast: "150ms";
+    normal: "250ms";
+    slow: "350ms";
+  };
+
+  easings: {
+    easeInOut: "cubic-bezier(0.4, 0, 0.2, 1)";
+    easeOut: "cubic-bezier(0, 0, 0.2, 1)";
+    easeIn: "cubic-bezier(0.4, 0, 1, 1)";
+  };
+
+  animations: {
+    fadeIn: {
+      from: { opacity: 0 };
+      to: { opacity: 1 };
+    };
+    slideIn: {
+      from: { transform: "translateY(20px)"; opacity: 0 };
+      to: { transform: "translateY(0)"; opacity: 1 };
+    };
+    scale: {
+      from: { transform: "scale(0.95)" };
+      to: { transform: "scale(1)" };
+    };
+  };
+}
+```
+
+## 3. Veri Görselleştirme
+
+### 3.1 Grafik Standartları
+
+```typescript
+interface ChartConfig {
+  libraries: {
+    primary: "Recharts";
+    complex: "D3.js";
+    interactive: "Chart.js";
+  };
+
+  colors: {
+    sequential: ["#2563EB", "#60A5FA", "#93C5FD", "#BFDBFE", "#DBEAFE"];
+    diverging: ["#EF4444", "#F59E0B", "#10B981", "#3B82F6"];
+  };
+
+  typography: {
+    title: {
+      fontSize: "@typography.xl";
+      fontWeight: "@typography.fontWeights.semibold";
+    };
+    axis: {
+      fontSize: "@typography.sm";
+      fontWeight: "@typography.fontWeights.regular";
+    };
+    legend: {
+      fontSize: "@typography.sm";
+      fontWeight: "@typography.fontWeights.medium";
+    };
+  };
+
+  responsive: {
+    aspectRatio: "16:9";
+    minHeight: "300px";
+    maxHeight: "600px";
+  };
+}
+```
+
+### 3.2 Dashboard Layout
+
+```typescript
+interface DashboardLayout {
+  grid: {
+    columns: {
+      mobile: 1;
+      tablet: 2;
+      desktop: 3;
+    };
+    gap: "1rem";
+  };
+
+  widgets: {
+    sizes: {
+      small: { w: 1; h: 1 }; // 1x1
+      medium: { w: 2; h: 1 }; // 2x1
+      large: { w: 2; h: 2 }; // 2x2
+      full: { w: 3; h: 1 }; // 3x1
+    };
+
+    spacing: {
+      padding: "1rem";
+      margin: "0.5rem";
+    };
+  };
+
+  navigation: {
+    sidebar: {
+      width: "240px";
+      collapsedWidth: "64px";
+    };
+    topbar: {
+      height: "64px";
+    };
+  };
+}
+```
+
+## 4. Erişilebilirlik Standartları
+
+### 4.1 WCAG Uyumluluk
+
+```typescript
+interface AccessibilityConfig {
+  wcag: {
+    level: "AA";
+    contrast: {
+      normal: {
+        minimum: 4.5;
+        target: 7;
+      };
+      large: {
+        minimum: 3;
+        target: 4.5;
+      };
+    };
+  };
+
+  aria: {
+    required: ["aria-label", "aria-describedby", "role", "tabindex"];
+    landmarks: ["banner", "main", "navigation", "complementary"];
+  };
+
+  keyboard: {
+    focusVisible: true;
+    tabSequence: true;
+    shortcuts: {
+      navigation: true;
+      actions: true;
+    };
+  };
+}
+```
+
+### 4.2 Erişilebilir Bileşenler
+
+```typescript
+interface AccessibleComponents {
+  modal: {
+    trapFocus: true;
+    closeOnEscape: true;
+    closeOnOutsideClick: true;
+    aria: {
+      role: "dialog";
+      labelledby: "modal-title";
+      describedby: "modal-description";
+    };
+  };
+
+  tooltip: {
+    showDelay: 200;
+    hideDelay: 0;
+    position: "top";
+    aria: {
+      role: "tooltip";
+    };
+  };
+
+  form: {
+    validation: {
+      showErrors: true;
+      announceErrors: true;
+      aria: {
+        invalid: true;
+        describedby: "error-message";
+      };
+    };
+  };
+}
+```
+
+## 5. Kullanıcı Geri Bildirimi
+
+### 5.1 Form Validasyonu
+
+```typescript
+interface FormValidation {
+  feedback: {
+    inline: true;
+    realTime: true;
+    icons: {
+      success: "check";
+      error: "x";
+      warning: "exclamation";
+    };
+  };
+
+  messages: {
+    required: "Bu alan zorunludur";
+    email: "Geçerli bir e-posta adresi giriniz";
+    password: {
+      min: "En az 8 karakter";
+      complexity: "Harf, rakam ve özel karakter içermelidir";
+    };
+  };
+
+  styles: {
+    success: {
+      color: "@semantic.success";
+      icon: true;
+    };
+    error: {
+      color: "@semantic.error";
+      icon: true;
+    };
+  };
+}
+```
+
+### 5.2 Kullanıcı Bildirimleri
+
+```typescript
+interface NotificationSystem {
+  types: {
+    toast: {
+      position: "top-right";
+      duration: 3000;
+      maxVisible: 3;
+    };
+    alert: {
+      position: "top-center";
+      requireDismissal: true;
+    };
+    modal: {
+      size: "sm" | "md" | "lg";
+      overlay: true;
+    };
+  };
+
+  variants: {
+    success: {
+      icon: "check-circle";
+      color: "@semantic.success";
+    };
+    error: {
+      icon: "x-circle";
+      color: "@semantic.error";
+    };
+    warning: {
+      icon: "exclamation-triangle";
+      color: "@semantic.warning";
+    };
+    info: {
+      icon: "information-circle";
+      color: "@semantic.info";
+    };
+  };
+
+  animation: {
+    enter: "slideIn";
+    exit: "fadeOut";
+    duration: "@animation.durations.normal";
+  };
+}
+```

@@ -1,0 +1,108 @@
+{
+  "categories": [
+    {
+      "title": "## 🚀 Features",
+      "labels": ["feature", "enhancement", "feat"]
+    },
+    {
+      "title": "## 🐛 Bug Fixes",
+      "labels": ["fix", "bugfix", "bug"]
+    },
+    {
+      "title": "## 🧰 Maintenance",
+      "labels": ["chore", "maintenance", "refactor"]
+    },
+    {
+      "title": "## 📝 Documentation",
+      "labels": ["documentation", "docs"]
+    },
+    {
+      "title": "## 🧪 Tests",
+      "labels": ["test", "tests"]
+    },
+    {
+      "title": "## 🔧 Build/CI",
+      "labels": ["build", "ci"]
+    },
+    {
+      "title": "## ⬆️ Dependencies",
+      "labels": ["dependencies", "deps"]
+    }
+  ],
+  "ignore_labels": ["ignore"],
+  "sort": "ASC",
+  "template": "${{CHANGELOG}}\n\n## 🔗 Full Commit History\n\n${{COMMITS}}",
+  "pr_template": "- ${{TITLE}} (#${{NUMBER}})",
+  "commit_template": "- ${{SUBJECT}} (${{COMMIT}})",
+  "empty_template": "- No changes",
+  "label_extractor": [
+    {
+      "pattern": "^(feat|feature|enhancement)(\\([\\w\\s-]+\\))?:\\s.+",
+      "target": "feature"
+    },
+    {
+      "pattern": "^fix(\\([\\w\\s-]+\\))?:\\s.+",
+      "target": "fix"
+    },
+    {
+      "pattern": "^docs(\\([\\w\\s-]+\\))?:\\s.+",
+      "target": "documentation"
+    },
+    {
+      "pattern": "^test(s)?(\\([\\w\\s-]+\\))?:\\s.+",
+      "target": "test"
+    },
+    {
+      "pattern": "^chore(\\([\\w\\s-]+\\))?:\\s.+",
+      "target": "chore"
+    },
+    {
+      "pattern": "^build(\\([\\w\\s-]+\\))?:\\s.+",
+      "target": "build"
+    },
+    {
+      "pattern": "^ci(\\([\\w\\s-]+\\))?:\\s.+",
+      "target": "ci"
+    },
+    {
+      "pattern": "^refactor(\\([\\w\\s-]+\\))?:\\s.+",
+      "target": "refactor"
+    }
+  ],
+  "transformers": [
+    {
+      "pattern": "^feat(\\([\\w\\s-]+\\))?:\\s(.+)$",
+      "target": "- $2"
+    },
+    {
+      "pattern": "^fix(\\([\\w\\s-]+\\))?:\\s(.+)$",
+      "target": "- $2"
+    },
+    {
+      "pattern": "^docs(\\([\\w\\s-]+\\))?:\\s(.+)$",
+      "target": "- $2"
+    },
+    {
+      "pattern": "^chore(\\([\\w\\s-]+\\))?:\\s(.+)$",
+      "target": "- $2"
+    },
+    {
+      "pattern": "^test(s)?(\\([\\w\\s-]+\\))?:\\s(.+)$",
+      "target": "- $3"
+    },
+    {
+      "pattern": "^build(\\([\\w\\s-]+\\))?:\\s(.+)$",
+      "target": "- $2"
+    },
+    {
+      "pattern": "^ci(\\([\\w\\s-]+\\))?:\\s(.+)$",
+      "target": "- $2"
+    },
+    {
+      "pattern": "^refactor(\\([\\w\\s-]+\\))?:\\s(.+)$",
+      "target": "- $2"
+    }
+  ],
+  "trim_values": true,
+  "exclude_merge_commits": true
+}

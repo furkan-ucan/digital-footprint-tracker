@@ -1,0 +1,478 @@
+---
+description: Teknik Spesifikasyon Dokümanı
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+# Dijital Ayak İzi İzleyici ve Kişisel Veri Gizliliği Koruma Platformu
+
+## Teknik Spesifikasyon Dokümanı
+
+| Başlık         | Detay                     |
+| -------------- | ------------------------- |
+| Proje Adı      | Dijital Ayak İzi İzleyici |
+| Versiyon       | 1.0.0                     |
+| Son Güncelleme | 2024-03-09                |
+| Durum          | Geliştirme Aşamasında     |
+
+## İçindekiler
+
+1. Proje Genel Tanımı
+2. Teknoloji Stack'i
+3. Sistem Mimarisi
+4. Proje Yapısı ve Organizasyonu
+5. Geliştirme Standartları
+6. Güvenlik ve Gizlilik
+7. Performans ve Ölçeklendirme
+
+## 1. Proje Genel Tanımı
+
+### 1.1 Amaç ve Kapsam
+
+Dijital Ayak İzi İzleyici, kullanıcıların çevrimiçi gizliliğini korumayı ve dijital ayak izlerini yönetmelerini sağlayan kapsamlı bir platformdur.
+
+**Temel Hedefler:**
+
+- Web sitelerindeki tracker'ları tespit etmek ve analiz etmek
+- Kullanıcı gizliliği risk skorunu hesaplamak
+- Kişisel veri koruması için öneriler sunmak
+- Gizlilik odaklı web deneyimi sağlamak
+
+### 1.2 Hedef Kitle
+
+```yaml
+Birincil Kullanıcılar:
+  - Gizlilik konusunda hassas internet kullanıcıları
+  - Kurumsal gizlilik politikası yöneticileri
+  - Veri güvenliği uzmanları
+
+Kullanım Senaryoları:
+  Bireysel Kullanıcılar:
+    - Günlük web gezintisinde gizlilik takibi
+    - Kişisel veri koruması
+    - Tracker engelleme ve yönetimi
+
+  Kurumsal Kullanıcılar:
+    - Çalışan gizlilik politikası yönetimi
+    - Kurumsal veri güvenliği analizi
+    - Uyumluluk raporlaması (GDPR/KVKK)
+```
+
+### 1.3 Sistem Bileşenleri
+
+```mermaid
+graph TB
+    subgraph Client Layer
+        A[Tarayıcı Uzantısı]
+        B[Web Dashboard]
+    end
+
+    subgraph Application Layer
+        C[Backend API]
+        D[ML Modülü]
+    end
+
+    subgraph Data Layer
+        E[PostgreSQL]
+        F[Redis Cache]
+    end
+
+    A -->|Tracker Analizi| C
+    B -->|Yönetim Arayüzü| C
+    C -->|Veri İşleme| D
+    D -->|Sonuçlar| C
+    C -->|Veri Saklama| E
+    C -->|Önbellek| F
+```
+
+## 2. Teknoloji Stack'i
+
+### 2.1 Frontend (Web Dashboard)
+
+```typescript
+interface FrontendStack {
+  framework: {
+    core: "React 18.x";
+    language: "TypeScript 5.x";
+    stateManagement: "Redux Toolkit";
+    routing: "React Router 6";
+  };
+
+  ui: {
+    styling: "TailwindCSS 3.x";
+    components: "Headless UI";
+    icons: "Heroicons";
+  };
+
+  dataVisualization: {
+    charts: "Recharts";
+    graphs: "D3.js";
+    maps: "MapboxGL";
+  };
+
+  testing: {
+    unit: "Jest + React Testing Library";
+    e2e: "Cypress";
+    coverage: "Istanbul";
+  };
+}
+```
+
+### 2.2 Tarayıcı Uzantısı
+
+```typescript
+interface ExtensionStack {
+  core: {
+    manifest: "V3";
+    language: "TypeScript";
+    bundler: "Rollup";
+  };
+
+  apis: {
+    tracking: ["chrome.webRequest", "chrome.cookies", "chrome.storage"];
+    permissions: ["cookies", "webRequest", "storage", "tabs"];
+  };
+
+  security: {
+    contentSecurity: "Strict";
+    permissions: "Minimal";
+    dataEncryption: "AES-256";
+  };
+}
+```
+
+### 2.3 Backend API
+
+```typescript
+interface BackendStack {
+  framework: {
+    core: "NestJS 10.x";
+    language: "TypeScript 5.x";
+    architecture: "Modular Monolith";
+  };
+
+  database: {
+    primary: {
+      engine: "PostgreSQL 15";
+      orm: "Prisma";
+    };
+    cache: {
+      engine: "Redis 7";
+      client: "ioredis";
+    };
+  };
+
+  auth: {
+    jwt: "JSON Web Tokens";
+    oauth: "OAuth 2.0 + PKCE";
+    session: "Redis Session Store";
+  };
+
+  documentation: {
+    api: "OpenAPI/Swagger";
+    code: "TypeDoc";
+  };
+}
+```
+
+### 2.4 ML Modülü
+
+```python
+class MLStack:
+    framework = {
+        'api': 'FastAPI',
+        'ml_libs': ['scikit-learn', 'TensorFlow 2.x'],
+        'data_processing': ['pandas', 'numpy'],
+        'visualization': ['matplotlib', 'seaborn']
+    }
+
+    models = {
+        'tracker_detection': 'Custom CNN',
+        'risk_assessment': 'Random Forest',
+        'pattern_recognition': 'LSTM'
+    }
+
+    deployment = {
+        'container': 'Docker',
+        'serving': 'TensorFlow Serving',
+        'scaling': 'Kubernetes'
+    }
+```
+
+## 3. Sistem Mimarisi
+
+### 3.1 Yüksek Seviye Mimari
+
+```mermaid
+graph TB
+    subgraph User Layer
+        A[Web Browser]
+        B[Extension]
+        C[Dashboard]
+    end
+
+    subgraph Application Layer
+        D[API Gateway]
+        E[Core Service]
+        F[ML Service]
+        G[Auth Service]
+    end
+
+    subgraph Data Layer
+        H[PostgreSQL]
+        I[Redis]
+        J[ML Models]
+    end
+
+    A --> B
+    B --> D
+    C --> D
+    D --> E
+    D --> F
+    D --> G
+    E --> H
+    E --> I
+    F --> J
+```
+
+### 3.2 Veri Akışı
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Extension
+    participant API
+    participant ML
+    participant DB
+
+    User->>Extension: Web sitesi ziyareti
+    Extension->>Extension: Tracker tespiti
+    Extension->>API: Analiz talebi
+    API->>ML: Veri işleme
+    ML->>API: Risk skoru
+    API->>DB: Veri saklama
+    API->>Extension: Sonuç
+    Extension->>User: Bildirim
+```
+
+## 4. Proje Yapısı ve Organizasyonu
+
+### 4.1 Monorepo Yapısı
+
+```bash
+📦 digital-footprint-tracker/
+┣ 📂 packages/
+┃ ┣ 📂 common/              # Paylaşılan tipler ve utilities
+┃ ┣ 📂 extension/           # Tarayıcı uzantısı
+┃ ┣ 📂 dashboard/           # Web dashboard
+┃ ┣ 📂 backend/             # NestJS API
+┃ ┗ 📂 ml-service/          # ML modülü
+┣ 📂 infrastructure/        # DevOps konfigürasyonları
+┣ 📂 docs/                  # Dokümantasyon
+┗ 📜 package.json          # Workspace konfigürasyonu
+```
+
+### 4.2 Servis Detayları
+
+```yaml
+Backend Service:
+  src/:
+    controllers/: # API endpoint'leri
+    services/: # İş mantığı
+    models/: # Veri modelleri
+    middleware/: # Ara katman işlemleri
+    utils/: # Yardımcı fonksiyonlar
+    config/: # Konfigürasyon
+
+Dashboard:
+  src/:
+    components/: # UI bileşenleri
+    pages/: # Sayfa yapıları
+    hooks/: # Custom React hooks
+    store/: # State yönetimi
+    api/: # API entegrasyonu
+
+Extension:
+  src/:
+    background/: # Arka plan işlemleri
+    content/: # Content script'ler
+    popup/: # Popup UI
+    utils/: # Yardımcı fonksiyonlar
+```
+
+## 5. Geliştirme Standartları
+
+### 5.1 Kod Standartları
+
+```typescript
+interface CodingStandards {
+  typescript: {
+    compiler: {
+      strict: true;
+      target: "ES2022";
+      module: "ESNext";
+    };
+
+    style: {
+      indentation: "2 spaces";
+      quotes: "single";
+      maxLineLength: 80;
+    };
+
+    naming: {
+      components: "PascalCase";
+      functions: "camelCase";
+      constants: "UPPER_SNAKE_CASE";
+    };
+  };
+
+  python: {
+    version: "3.9+";
+    formatter: "black";
+    linter: "flake8";
+    docstring: "Google style";
+  };
+}
+```
+
+### 5.2 Git Workflow
+
+```yaml
+Branches:
+  main: Production-ready code
+  develop: Development integration
+  feature/*: New features
+  bugfix/*: Bug fixes
+  release/*: Release preparations
+
+Commit Messages:
+  format: "<type>(<scope>): <description>"
+  types:
+    - feat: New features
+    - fix: Bug fixes
+    - docs: Documentation
+    - style: Formatting
+    - refactor: Code restructuring
+    - test: Test updates
+    - chore: Maintenance
+
+Pull Requests:
+  template:
+    - Description
+    - Changes made
+    - Testing done
+    - Screenshots (if UI)
+```
+
+## 6. Güvenlik ve Gizlilik
+
+### 6.1 Veri Güvenliği
+
+```typescript
+interface SecurityMeasures {
+  encryption: {
+    atRest: "AES-256-GCM";
+    inTransit: "TLS 1.3";
+    keyManagement: "AWS KMS";
+  };
+
+  authentication: {
+    type: "JWT + OAuth2";
+    mfa: true;
+    sessionManagement: "Redis-based";
+  };
+
+  authorization: {
+    type: "RBAC";
+    granularity: "Resource-level";
+    policies: "AWS IAM-style";
+  };
+}
+```
+
+### 6.2 Gizlilik Politikası
+
+```yaml
+Data Collection:
+  - Minimal veri toplama prensibi
+  - Açık kullanıcı izni
+  - Veri saklama süresi sınırları
+
+Data Processing:
+  - Yerel işleme önceliği
+  - Anonimleştirme
+  - Şifreleme
+
+User Rights:
+  - Veri erişimi
+  - Veri taşınabilirliği
+  - Silme talebi
+  - İşleme kısıtlama
+```
+
+## 7. Performans ve Ölçeklendirme
+
+### 7.1 Performans Hedefleri
+
+```typescript
+interface PerformanceTargets {
+  extension: {
+    startupTime: "< 500ms";
+    memoryUsage: "< 50MB";
+    cpuUsage: "< 5%";
+  };
+
+  api: {
+    responseTime: "< 200ms";
+    throughput: "1000 req/sec";
+    availability: "99.9%";
+  };
+
+  dashboard: {
+    loadTime: "< 2s";
+    timeToInteractive: "< 3s";
+    firstContentfulPaint: "< 1s";
+  };
+}
+```
+
+### 7.2 Ölçeklendirme Stratejisi
+
+```yaml
+Horizontal Scaling:
+  API:
+    - Load Balancer kullanımı
+    - Auto-scaling groups
+    - Stateless tasarım
+
+Database:
+  - Read replicas
+  - Sharding stratejisi
+  - Connection pooling
+
+Caching:
+  - Multi-layer caching
+  - Redis cluster
+  - CDN kullanımı
+```
+
+---
+
+## Versiyon Geçmişi
+
+| Versiyon | Tarih      | Değişiklikler |
+| -------- | ---------- | ------------- |
+| 1.0.0    | 2024-03-09 | İlk sürüm     |
+
+## Katkıda Bulunanlar
+
+| İsim           | Rol            | Organizasyon |
+| -------------- | -------------- | ------------ |
+| Solo Developer | Lead Developer | -            |
+
+```
+
+```
+

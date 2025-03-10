@@ -1,0 +1,402 @@
+---
+description: Test ve Kalite Güvencesi Kuralları
+globs: 
+alwaysApply: false
+---
+
+# Your rule content
+
+# Dijital Ayak İzi İzleyici - Test ve Kalite Güvencesi Kuralları
+
+## İçindekiler
+
+1. [Test Stratejileri ve Senaryoları](#1-test-stratejileri-ve-senaryoları)
+2. [Kod Kalitesi ve Statik Analiz](#2-kod-kalitesi-ve-statik-analiz)
+3. [Test Otomasyonu ve CI/CD](#3-test-otomasyonu-ve-cicd)
+4. [Test Raporlama ve Metrikler](#4-test-raporlama-ve-metrikler)
+5. [Kalite Güvence Süreçleri](#5-kalite-güvence-süreçleri)
+
+## 1. Test Stratejileri ve Senaryoları
+
+### 1.1 Birim Testleri
+
+```typescript
+interface UnitTestConfig {
+  framework: "Jest";
+  testMatch: ["**/__tests__/**/*.test.ts"];
+
+  coverage: {
+    statements: 85;
+    branches: 80;
+    functions: 85;
+    lines: 85;
+  };
+
+  modules: {
+    core: {
+      required: ["TrackerAnalyzer", "PrivacyScoreCalculator", "DataAnonymizer"];
+      patterns: ["src/core/**/*.ts"];
+    };
+
+    api: {
+      required: ["AuthController", "TrackerController", "AnalysisService"];
+      patterns: ["src/api/**/*.ts"];
+    };
+
+    extension: {
+      required: ["TrackerDetector", "StorageManager", "MessageHandler"];
+      patterns: ["src/extension/**/*.ts"];
+    };
+  };
+}
+```
+
+### 1.2 Entegrasyon Testleri
+
+```typescript
+interface IntegrationTestConfig {
+  framework: "Jest + Supertest";
+
+  scenarios: {
+    api: {
+      auth: ["login-flow", "token-refresh", "permission-check"];
+      trackers: ["detection-flow", "analysis-pipeline", "reporting-chain"];
+    };
+
+    extension: {
+      communication: ["extension-to-backend", "real-time-updates", "data-sync"];
+      storage: ["local-storage", "sync-storage", "cache-management"];
+    };
+  };
+
+  environment: {
+    type: "Containerized";
+    services: ["PostgreSQL", "Redis", "API Server"];
+    cleanup: "After Each Test";
+  };
+}
+```
+
+### 1.3 E2E Testleri
+
+```typescript
+interface E2ETestConfig {
+  framework: "Cypress";
+  baseUrl: "https://staging.digitalfootprint.com";
+
+  userFlows: {
+    onboarding: [
+      "extension-installation",
+      "initial-setup",
+      "preferences-configuration"
+    ];
+
+    tracking: ["website-visit", "tracker-detection", "privacy-score-display"];
+
+    management: ["view-dashboard", "configure-blocking", "export-reports"];
+  };
+
+  browsers: ["Chrome", "Firefox", "Edge"];
+
+  viewports: [
+    { width: 1920; height: 1080 },
+    { width: 1366; height: 768 },
+    { width: 375; height: 812 }
+  ];
+}
+```
+
+## 2. Kod Kalitesi ve Statik Analiz
+
+### 2.1 ESLint Yapılandırması
+
+```json
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:security/recommended"
+  ],
+  "plugins": ["@typescript-eslint", "security", "jest"],
+  "rules": {
+    "@typescript-eslint/explicit-function-return-type": "error",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": "error",
+    "security/detect-possible-timing-attacks": "error",
+    "security/detect-non-literal-regexp": "error",
+    "complexity": ["error", { "max": 10 }],
+    "max-lines": ["error", { "max": 300 }],
+    "max-depth": ["error", { "max": 3 }]
+  }
+}
+```
+
+### 2.2 Prettier Yapılandırması
+
+```json
+{
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "endOfLine": "lf"
+}
+```
+
+### 2.3 TypeScript Yapılandırması
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
+  }
+}
+```
+
+### 2.4 SonarQube Yapılandırması
+
+```yaml
+sonar:
+  projectKey: "digital-footprint-tracker"
+  sources: "src"
+  tests: "tests"
+
+  qualityGates:
+    - metric: "coverage"
+      threshold: 85
+    - metric: "code_smells"
+      threshold: 100
+    - metric: "bugs"
+      threshold: 0
+    - metric: "vulnerabilities"
+      threshold: 0
+
+  exclusions:
+    - "**/node_modules/**"
+    - "**/dist/**"
+    - "**/coverage/**"
+```
+
+## 3. Test Otomasyonu ve CI/CD
+
+### 3.1 GitHub Actions Workflow
+
+```yaml
+name: Test & Quality Checks
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lint Check
+        run: yarn lint
+
+      - name: Type Check
+        run: yarn type-check
+
+      - name: Unit Tests
+        run: yarn test:unit
+
+      - name: Integration Tests
+        run: yarn test:integration
+
+      - name: E2E Tests
+        run: yarn test:e2e
+
+      - name: SonarQube Analysis
+        run: yarn sonar
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Security Audit
+        run: yarn audit
+
+      - name: License Check
+        run: yarn license-check
+```
+
+### 3.2 Jest Yapılandırması
+
+```typescript
+interface JestConfig {
+  preset: "ts-jest";
+  testEnvironment: "node";
+
+  coverageReporters: ["text", "html", "lcov", "cobertura"];
+
+  setupFiles: ["<rootDir>/tests/setup.ts"];
+
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/src/$1";
+  };
+
+  testTimeout: 10000;
+}
+```
+
+## 4. Test Raporlama ve Metrikler
+
+### 4.1 Test Raporlama Yapılandırması
+
+```typescript
+interface TestReportConfig {
+  outputs: {
+    junit: {
+      enabled: true;
+      file: "reports/junit.xml";
+    };
+    html: {
+      enabled: true;
+      directory: "reports/html";
+    };
+    coverage: {
+      enabled: true;
+      format: ["lcov", "html", "text"];
+    };
+  };
+
+  metrics: {
+    performance: {
+      responseTime: {
+        threshold: 200; // ms
+        percentile: 95;
+      };
+      throughput: {
+        minimum: 100; // req/sec
+      };
+    };
+
+    reliability: {
+      uptime: 99.9;
+      errorRate: 0.1;
+    };
+
+    quality: {
+      coverage: 85;
+      passRate: 100;
+    };
+  };
+}
+```
+
+### 4.2 Hata İzleme ve Raporlama
+
+```typescript
+interface ErrorTrackingConfig {
+  service: "Sentry";
+
+  environments: {
+    development: {
+      enabled: true;
+      sampleRate: 1.0;
+    };
+    staging: {
+      enabled: true;
+      sampleRate: 0.5;
+    };
+    production: {
+      enabled: true;
+      sampleRate: 0.1;
+    };
+  };
+
+  alerts: {
+    critical: {
+      threshold: 10;
+      window: "5m";
+      channels: ["slack", "email"];
+    };
+    warning: {
+      threshold: 50;
+      window: "1h";
+      channels: ["slack"];
+    };
+  };
+}
+```
+
+## 5. Kalite Güvence Süreçleri
+
+### 5.1 Code Review Süreci
+
+```typescript
+interface CodeReviewConfig {
+  requirements: {
+    approvals: 2;
+    coverage: true;
+    linting: true;
+    tests: true;
+  };
+
+  checklist: [
+    "Security implications reviewed",
+    "Performance impact assessed",
+    "Documentation updated",
+    "Tests added/updated",
+    "Accessibility considered"
+  ];
+
+  automations: {
+    assignReviewers: true;
+    labelPRs: true;
+    blockMerge: {
+      failingTests: true;
+      pendingReviews: true;
+      coverageDecrease: true;
+    };
+  };
+}
+```
+
+### 5.2 Release Kalite Kontrolleri
+
+```typescript
+interface ReleaseQAConfig {
+  preRelease: {
+    smokeTests: true;
+    performanceTests: true;
+    securityScan: true;
+  };
+
+  staging: {
+    duration: "1w";
+    userGroups: ["internal", "beta"];
+    metrics: ["errors", "performance", "usage"];
+  };
+
+  rollout: {
+    strategy: "gradual";
+    phases: [
+      { percentage: 10; duration: "1d" },
+      { percentage: 50; duration: "2d" },
+      { percentage: 100; duration: "1d" }
+    ];
+    rollback: {
+      errorThreshold: 1.0;
+      performanceThreshold: 500; // ms
+    };
+  };
+}
+```

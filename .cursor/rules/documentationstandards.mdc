@@ -1,0 +1,495 @@
+---
+description: Dokümantasyon ve Yorumlama Kuralları
+globs: 
+alwaysApply: false
+---
+
+# Your rule content
+
+# Dijital Ayak İzi İzleyici - Dokümantasyon ve Yorumlama Kuralları
+
+## İçindekiler
+
+1. [Kod İçi Dokümantasyon](#1-kod-içi-dokümantasyon)
+2. [API Dokümantasyonu](#2-api-dokümantasyonu)
+3. [Teknik Dokümantasyon](#3-teknik-dokümantasyon)
+4. [Kullanıcı Dokümantasyonu](#4-kullanıcı-dokümantasyonu)
+5. [Dokümantasyon Yönetimi](#5-dokümantasyon-yönetimi)
+
+## 1. Kod İçi Dokümantasyon
+
+### 1.1 TSDoc/JSDoc Standartları
+
+````typescript
+interface DocumentationRules {
+  functionDoc: {
+    required: [
+      'description',     // Fonksiyon açıklaması
+      'params',         // Parametre açıklamaları
+      'returns',        // Dönüş değeri açıklaması
+      'throws',         // Fırlatılan hatalar
+      'example'         // Kullanım örneği
+    ];
+
+    template: `
+    /**
+     * [Kısa açıklama]
+     *
+     * [Detaylı açıklama (opsiyonel)]
+     *
+     * @param {Type} name - Parametre açıklaması
+     * @returns {Type} Dönüş değeri açıklaması
+     * @throws {ErrorType} Hata durumu açıklaması
+     *
+     * @example
+     * ```typescript
+     * // Kullanım örneği
+     * ```
+     */
+    `;
+  };
+
+  classDoc: {
+    required: [
+      'description',     // Sınıf açıklaması
+      'implements',      // Uygulanan interface'ler
+      'properties',      // Özellik açıklamaları
+      'methods',         // Metod açıklamaları
+      'example'          // Kullanım örneği
+    ];
+
+    template: `
+    /**
+     * [Sınıf açıklaması]
+     *
+     * @implements {Interface}
+     * @property {Type} name - Özellik açıklaması
+     *
+     * @example
+     * ```typescript
+     * // Kullanım örneği
+     * ```
+     */
+    `;
+  };
+
+  interfaceDoc: {
+    required: [
+      'description',     // Interface açıklaması
+      'properties',      // Özellik açıklamaları
+      'example'          // Kullanım örneği
+    ];
+  };
+}
+````
+
+### 1.2 Kod İçi Yorum Örnekleri
+
+````typescript
+/**
+ * Kullanıcının dijital ayak izini analiz eder ve gizlilik skorunu hesaplar.
+ *
+ * Bu fonksiyon, kullanıcının web aktivitelerini analiz ederek bir gizlilik skoru
+ * oluşturur. Skor, çerezler, izleyiciler ve diğer faktörlere dayanır.
+ *
+ * @param {UserActivity} activity - Kullanıcı aktivite verileri
+ * @param {AnalysisOptions} options - Analiz seçenekleri
+ * @returns {Promise<PrivacyScore>} Hesaplanan gizlilik skoru
+ * @throws {InvalidDataError} Geçersiz aktivite verisi durumunda
+ *
+ * @example
+ * ```typescript
+ * const score = await analyzePrivacyScore({
+ *   browsing: userBrowsingData,
+ *   cookies: userCookies
+ * });
+ * ```
+ */
+async function analyzePrivacyScore(
+  activity: UserActivity,
+  options?: AnalysisOptions
+): Promise<PrivacyScore> {
+  // Implementation
+}
+
+/**
+ * Tracker tespiti ve analizi için kullanılan servis.
+ *
+ * @implements {ITrackerService}
+ * @property {TrackerDatabase} database - Tracker veritabanı referansı
+ * @property {AnalysisEngine} engine - Analiz motoru instance'ı
+ */
+class TrackerAnalysisService implements ITrackerService {
+  private database: TrackerDatabase;
+  private engine: AnalysisEngine;
+
+  /**
+   * Yeni bir tracker tespit eder ve analiz eder.
+   *
+   * @param {TrackerData} data - Tracker verisi
+   * @returns {Promise<Analysis>} Analiz sonucu
+   */
+  async detectAndAnalyze(data: TrackerData): Promise<Analysis> {
+    // Implementation
+  }
+}
+````
+
+## 2. API Dokümantasyonu
+
+### 2.1 OpenAPI (Swagger) Şablonu
+
+```yaml
+openapi: 3.0.0
+info:
+  title: Dijital Ayak İzi İzleyici API
+  version: 1.0.0
+  description: |
+    Dijital Ayak İzi İzleyici platformunun REST API dokümantasyonu.
+    Bu API, kullanıcıların dijital gizlilik verilerini yönetmelerini sağlar.
+
+paths:
+  /api/v1/privacy-score:
+    post:
+      summary: Gizlilik skoru hesapla
+      description: |
+        Verilen web sitesi için gizlilik skoru hesaplar.
+        Skor, çerezler, izleyiciler ve diğer faktörlere dayanır.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalysisRequest"
+
+      responses:
+        "200":
+          description: Başarılı analiz
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrivacyScore"
+
+        "400":
+          description: Geçersiz istek
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    AnalysisRequest:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          format: uri
+          example: "https://example.com"
+```
+
+### 2.2 Postman Collection Yapısı
+
+```json
+{
+  "info": {
+    "name": "Dijital Ayak İzi API",
+    "description": "API endpoint koleksiyonu",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Privacy Score",
+      "description": "Gizlilik skoru hesaplama endpointleri",
+      "item": [
+        {
+          "name": "Calculate Score",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/privacy-score",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "privacy-score"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://example.com\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+## 3. Teknik Dokümantasyon
+
+### 3.1 README.md Şablonu
+
+````markdown
+# Dijital Ayak İzi İzleyici
+
+## 🚀 Başlangıç
+
+### Gereksinimler
+
+- Node.js >= 16
+- PostgreSQL >= 13
+- Redis >= 6
+
+### Kurulum
+
+```bash
+# Repository'yi klonla
+git clone https://github.com/username/digital-footprint.git
+
+# Bağımlılıkları yükle
+npm install
+
+# Geliştirme sunucusunu başlat
+npm run dev
+```
+````
+
+### Yapılandırma
+
+```env
+# .env dosyası
+DATABASE_URL=postgresql://user:pass@localhost:5432/db
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your-secret-key
+```
+
+## 📚 Dokümantasyon
+
+- [API Dokümantasyonu](./docs/API.md)
+- [Mimari Detaylar](./docs/ARCHITECTURE.md)
+- [Geliştirici Kılavuzu](./docs/CONTRIBUTING.md)
+
+## 🤝 Katkıda Bulunma
+
+[CONTRIBUTING.md](./CONTRIBUTING.md) dosyasını inceleyin.
+
+## 📝 Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır.
+
+````
+
+### 3.2 Sistem Mimarisi Dokümantasyonu
+
+```markdown
+# Sistem Mimarisi
+
+## Bileşenler
+
+### Frontend (Browser Extension)
+- React + TypeScript
+- TailwindCSS
+- Redux Toolkit
+- Chrome Extensions API
+
+### Backend (API)
+- NestJS
+- PostgreSQL
+- Redis
+- WebSocket
+
+## Veri Akışı
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Extension
+    participant API
+    participant DB
+
+    User->>Extension: Web sitesini ziyaret et
+    Extension->>Extension: Trackerları tespit et
+    Extension->>API: Analiz için veri gönder
+    API->>DB: Veriyi kaydet
+    API->>Extension: Analiz sonucunu döndür
+    Extension->>User: Gizlilik skorunu göster
+````
+
+## Güvenlik
+
+### Kimlik Doğrulama
+
+- JWT tabanlı authentication
+- Refresh token mekanizması
+- Rate limiting
+
+### Veri Güvenliği
+
+- End-to-end encryption
+- HTTPS zorunluluğu
+- Veri anonimleştirme
+
+````
+
+## 4. Kullanıcı Dokümantasyonu
+
+### 4.1 Kullanım Kılavuzu Şablonu
+
+```markdown
+# Kullanıcı Kılavuzu
+
+## 🎯 Başlarken
+
+### Uzantıyı Yükleme
+1. Chrome Web Store'u ziyaret edin
+2. "Dijital Ayak İzi İzleyici"yi arayın
+3. "Chrome'a Ekle" butonuna tıklayın
+4. Yükleme izinlerini onaylayın
+
+### İlk Kullanım
+1. Tarayıcı araç çubuğundaki ikona tıklayın
+2. Hesap oluşturun veya giriş yapın
+3. Gizlilik tercihlerinizi ayarlayın
+
+## 📊 Özellikleri Kullanma
+
+### Gizlilik Skoru
+- Her web sitesi için otomatik hesaplanır
+- 0-100 arası puanlama
+- Detaylı analiz raporu
+
+### Tracker Engelleme
+1. Dashboard'a gidin
+2. "Tracker Yönetimi" sekmesini açın
+3. Engellemek istediğiniz kategorileri seçin
+
+## ❓ Sık Sorulan Sorular
+
+### Gizlilik skorum düşükse ne yapmalıyım?
+...
+
+### Belirli bir tracker'ı nasıl engellerim?
+...
+````
+
+### 4.2 Hata Mesajları Dokümantasyonu
+
+```typescript
+interface ErrorDocumentation {
+  categories: {
+    validation: {
+      code: "VAL_";
+      messages: {
+        invalidEmail: {
+          code: "VAL_001";
+          message: "Geçersiz e-posta adresi";
+          resolution: "Lütfen geçerli bir e-posta adresi girin";
+        };
+        invalidPassword: {
+          code: "VAL_002";
+          message: "Geçersiz şifre formatı";
+          resolution: "Şifre en az 8 karakter olmalıdır";
+        };
+      };
+    };
+
+    authentication: {
+      code: "AUTH_";
+      messages: {
+        invalidToken: {
+          code: "AUTH_001";
+          message: "Geçersiz veya süresi dolmuş token";
+          resolution: "Lütfen tekrar giriş yapın";
+        };
+      };
+    };
+
+    tracking: {
+      code: "TRACK_";
+      messages: {
+        analysisError: {
+          code: "TRACK_001";
+          message: "Tracker analizi başarısız";
+          resolution: "Lütfen sayfayı yenileyin ve tekrar deneyin";
+        };
+      };
+    };
+  };
+}
+```
+
+## 5. Dokümantasyon Yönetimi
+
+### 5.1 Dokümantasyon Güncelleme Süreci
+
+```typescript
+interface DocumentationWorkflow {
+  updateProcess: {
+    triggers: [
+      "Yeni özellik eklenmesi",
+      "API değişiklikleri",
+      "Hata düzeltmeleri",
+      "Kullanıcı geri bildirimleri"
+    ];
+
+    steps: [
+      "Değişikliğin dokümantasyon etkisini değerlendir",
+      "İlgili dokümantasyonu güncelle",
+      "Teknik ve kullanıcı dokümantasyonunu senkronize et",
+      "Değişiklikleri gözden geçir",
+      "Güncellemeleri yayınla"
+    ];
+
+    reviewers: ["Teknik yazar", "Geliştirici ekibi", "UX ekibi"];
+  };
+
+  maintenance: {
+    frequency: {
+      apiDocs: "Her API değişikliğinde";
+      userGuide: "Her sürümde";
+      technicalDocs: "Sprint sonlarında";
+    };
+
+    validation: {
+      links: true;
+      codeExamples: true;
+      screenshots: true;
+      apiEndpoints: true;
+    };
+  };
+}
+```
+
+### 5.2 Dokümantasyon Formatları
+
+```typescript
+interface DocumentationFormats {
+  technical: {
+    primary: "Markdown";
+    api: "OpenAPI/Swagger";
+    diagrams: "Mermaid";
+    codeExamples: "TypeScript";
+  };
+
+  user: {
+    guides: "HTML/CSS";
+    tutorials: "Video + Metin";
+    faq: "Markdown";
+  };
+
+  storage: {
+    repository: "GitHub";
+    wiki: "GitHub Wiki";
+    api: "Swagger UI";
+    guides: "Documentation Site";
+  };
+
+  export: {
+    formats: ["PDF", "HTML", "EPUB"];
+    automation: true;
+    versioning: true;
+  };
+}
+```

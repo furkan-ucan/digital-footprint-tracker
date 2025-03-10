@@ -1,0 +1,322 @@
+---
+description: Standart kod yazımı 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+# Dijital Ayak İzi İzleyici - Kod Standartları ve Stili Kuralları
+
+## İçindekiler
+
+1. İsimlendirme Kuralları
+2. Biçimlendirme Standartları
+3. Yorum ve Dokümantasyon Kuralları
+4. TypeScript/JavaScript Özel Kuralları
+5. Git Commit ve Branch Kuralları
+
+## 1. İsimlendirme Kuralları
+
+### 1.1 Genel Prensipler
+
+- İsimlendirmeler açıklayıcı ve anlamlı olmalı
+- Kısaltmalar yerine tam kelimeler kullanılmalı
+- İngilizce terimler tercih edilmeli
+- Özel karakterler kullanılmamalı
+
+### 1.2 Spesifik Kurallar
+
+#### Dosya İsimlendirme
+
+```typescript
+// Komponent Dosyaları (PascalCase)
+UserProfile.tsx;
+PrivacyScore.tsx;
+TrackerList.tsx;
+
+// Utility Dosyaları (camelCase)
+cookieUtils.ts;
+trackerAnalyzer.ts;
+storageHelper.ts;
+
+// Stil Dosyaları (kebab-case)
+user - profile.styles.css;
+privacy - score.module.css;
+tracker - list.scss;
+```
+
+#### Değişken İsimlendirme
+
+```typescript
+// Primitive Değişkenler (camelCase)
+const userName: string;
+let isActive: boolean;
+const maxRetryCount: number;
+
+// Interface ve Type Tanımları (PascalCase)
+interface UserPreferences {}
+type TrackerConfig = {};
+
+// Enum Tanımları (PascalCase)
+enum PrivacyLevel {}
+enum TrackerType {}
+
+// Sabitler (SCREAMING_SNAKE_CASE)
+const MAX_RETRY_ATTEMPTS: number = 3;
+const API_BASE_URL: string = "...";
+```
+
+#### Fonksiyon İsimlendirme
+
+```typescript
+// Class Metodları ve Standalone Fonksiyonlar (camelCase)
+function analyzeTracker() {}
+const calculateRiskScore = () => {};
+
+// Event Handler'lar (handle prefix ile)
+const handleClick = () => {};
+const handleTrackerDetected = () => {};
+
+// Async Fonksiyonlar (async prefix ile)
+async function fetchUserData() {}
+const asyncLoadTrackers = async () => {};
+```
+
+#### Class İsimlendirme
+
+```typescript
+// Class İsimleri (PascalCase)
+class TrackerAnalyzer {}
+class PrivacyScoreCalculator {}
+
+// Abstract Class'lar (Abstract prefix ile)
+abstract class AbstractStorage {}
+abstract class AbstractTracker {}
+```
+
+## 2. Biçimlendirme Standartları
+
+### 2.1 Genel Kurallar
+
+```yaml
+Satır Uzunluğu: 80 karakter
+İndentasyon: 2 boşluk
+Satır Sonu: LF (Unix-style)
+Dosya Sonu: Boş satır ile bitmeli
+Karakter Encoding: UTF-8
+```
+
+### 2.2 Boşluk ve Parantez Kuralları
+
+```typescript
+// Doğru
+if (condition) {
+  doSomething();
+}
+
+// Yanlış
+if (condition) {
+  doSomething();
+}
+
+// Fonksiyon Tanımları
+function calculate(param1: string, param2: number): void {
+  // ...
+}
+
+// Arrow Functions
+const handler = (event: Event): void => {
+  // ...
+};
+```
+
+### 2.3 Import/Export Düzeni
+
+```typescript
+// 1. Node.js built-in modüller
+import fs from "fs";
+import path from "path";
+
+// 2. External dependencies (alfabetik sıralı)
+import React from "react";
+import { useEffect, useState } from "react";
+
+// 3. Internal modüller (alfabetik sıralı)
+import { TrackerAnalyzer } from "@/core";
+import { usePrivacy } from "@/hooks";
+
+// 4. Relative imports
+import { Button } from "../components";
+import { CONSTANTS } from "./constants";
+```
+
+## 3. Yorum ve Dokümantasyon Kuralları
+
+### 3.1 TSDoc/JSDoc Standartları
+
+```typescript
+/**
+ * Analyzes web trackers and calculates privacy score
+ * @param {string} url - The URL to analyze
+ * @param {TrackerOptions} options - Analysis options
+ * @returns {Promise<PrivacyScore>} The calculated privacy score
+ * @throws {AnalysisError} When analysis fails
+ */
+async function analyzeTrackers(
+  url: string,
+  options: TrackerOptions
+): Promise<PrivacyScore> {
+  // ...
+}
+
+/**
+ * Represents a web tracker instance
+ * @interface
+ * @property {string} id - Unique identifier
+ * @property {TrackerType} type - Type of tracker
+ * @property {string} source - Source URL
+ */
+interface Tracker {
+  id: string;
+  type: TrackerType;
+  source: string;
+}
+```
+
+### 3.2 Kod İçi Yorumlar
+
+```typescript
+// TODO: Yorum formatları
+// FIXME: Acil düzeltilmesi gereken sorunlar
+// NOTE: Önemli notlar
+// HACK: Geçici çözümler
+
+// Karmaşık logic öncesi açıklama
+function calculateRiskScore(): number {
+  // Risk skoru hesaplama algoritması:
+  // 1. Tracker sayısı ve türlerine göre baz puan
+  // 2. Çerez politikalarına göre düzeltme
+  // 3. SSL/TLS kullanımına göre bonus
+  // ...
+}
+```
+
+## 4. TypeScript/JavaScript Özel Kuralları
+
+### 4.1 Type Tanımları
+
+```typescript
+// Generic type kullanımı
+interface Result<T> {
+  data: T;
+  error?: Error;
+}
+
+// Union types
+type Status = "idle" | "loading" | "success" | "error";
+
+// Intersection types
+type AdminUser = User & {
+  privileges: string[];
+};
+```
+
+### 4.2 Best Practices
+
+```typescript
+// Null Checks
+function processUser(user?: User): void {
+  if (!user) return;
+  // ...
+}
+
+// Early Returns
+function validate(data: unknown): boolean {
+  if (!data) return false;
+  if (typeof data !== "object") return false;
+  // ...
+  return true;
+}
+
+// Async/Await kullanımı
+async function fetchData(): Promise<void> {
+  try {
+    const result = await api.get();
+    // ...
+  } catch (error) {
+    // Error handling
+  }
+}
+```
+
+## 5. Git Commit ve Branch Kuralları
+
+### 5.1 Commit Mesajları
+
+```
+feat: Yeni özellik eklendi
+fix: Hata düzeltmesi
+docs: Dokümantasyon güncellemesi
+style: Kod stili değişiklikleri
+refactor: Kod refactoring
+test: Test ekleme veya güncelleme
+chore: Yapılandırma değişiklikleri
+```
+
+### 5.2 Branch İsimlendirme
+
+```
+feature/tracker-analysis
+bugfix/memory-leak
+hotfix/security-vulnerability
+release/v1.0.0
+docs/api-documentation
+```
+
+## Linting ve Formatting
+
+### ESLint Konfigürasyonu
+
+```json
+{
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "max-len": ["error", { "code": 80 }],
+    "indent": ["error", 2],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "no-console": "warn"
+  }
+}
+```
+
+### Prettier Konfigürasyonu
+
+```json
+{
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "endOfLine": "lf"
+}
+```
+
+## VS Code Ayarları
+
+```json
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.updateImportsOnFileMove.enabled": "always"
+}
+```

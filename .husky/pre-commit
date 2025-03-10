@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Lint-staged kullanarak sadece değişiklik yapılan dosyaları kontrol et
+npx --no -- lint-staged

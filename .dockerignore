@@ -1,0 +1,25 @@
+# Node.js
+node_modules
+npm-debug.log
+pnpm-debug.log
+.pnpm-store
+
+# Build artifacts
+dist
+build
+*.tsbuildinfo
+
+# Version control
+.git
+.github
+
+# IDE
+.vscode
+.idea
+
+# Misc
+.DS_Store
+*.env
+coverage
+.coverage
+.cache

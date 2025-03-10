@@ -1,0 +1,400 @@
+---
+description: Api tasarım
+globs: 
+alwaysApply: false
+---
+
+# Your rule content
+
+# Dijital Ayak İzi İzleyici - API Tasarım ve Entegrasyon Kuralları
+
+## İçindekiler
+
+1. RESTful Endpoint Yapıları
+2. Hata Kodları ve Yönetimi
+3. Kimlik Doğrulama ve Yetkilendirme
+4. API Güvenliği ve Rate Limiting
+5. API Versiyonlama
+6. API Dokümantasyonu
+
+## 1. RESTful Endpoint Yapıları
+
+### 1.1 Endpoint İsimlendirme Kuralları
+
+```yaml
+Base URL: https://api.digitalfootprint.com
+
+Endpoint Yapısı:
+  - /api/v1/{resource} # Ana kaynak
+  - /api/v1/{resource}/{id} # Tekil kaynak
+  - /api/v1/{resource}/{id}/{sub-resource} # Alt kaynak
+
+Örnekler:
+  - /api/v1/trackers # Tracker listesi
+  - /api/v1/trackers/{id} # Tekil tracker
+  - /api/v1/sites/{id}/trackers # Site'a ait trackerlar
+```
+
+### 1.2 HTTP Metodları
+
+```typescript
+// GET: Kaynak listeleme ve tekil kaynak getirme
+GET / api / v1 / trackers; // Tracker listesi
+GET / api / v1 / trackers / { id }; // Tekil tracker
+
+// POST: Yeni kaynak oluşturma
+POST / api / v1 / trackers; // Yeni tracker oluştur
+POST / api / v1 / analysis / start; // Analiz başlat
+
+// PUT: Kaynağı güncelleme (tüm alanlar)
+PUT / api / v1 / trackers / { id }; // Tracker güncelle
+
+// PATCH: Kısmi güncelleme
+PATCH / api / v1 / trackers / { id }; // Tracker'ı kısmen güncelle
+
+// DELETE: Kaynak silme
+DELETE / api / v1 / trackers / { id }; // Tracker sil
+```
+
+### 1.3 Response Formatları
+
+```typescript
+// Başarılı Response
+interface SuccessResponse<T> {
+  success: true;
+  data: T;
+  meta?: {
+    page?: number;
+    limit?: number;
+    total?: number;
+  };
+}
+
+// Örnek Başarılı Response
+{
+  "success": true,
+  "data": {
+    "id": "123",
+    "type": "cookie",
+    "source": "example.com",
+    "riskLevel": 0.8
+  },
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 100
+  }
+}
+
+// Hata Response
+interface ErrorResponse {
+  success: false;
+  error: {
+    code: string;
+    message: string;
+    details?: unknown;
+  };
+}
+
+// Örnek Hata Response
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid tracker data",
+    "details": {
+      "source": "Source URL is required"
+    }
+  }
+}
+```
+
+## 2. Hata Kodları ve Yönetimi
+
+### 2.1 HTTP Durum Kodları
+
+```typescript
+enum HttpStatus {
+  // 2xx Success
+  OK = 200,
+  CREATED = 201,
+  NO_CONTENT = 204,
+
+  // 4xx Client Errors
+  BAD_REQUEST = 400,
+  UNAUTHORIZED = 401,
+  FORBIDDEN = 403,
+  NOT_FOUND = 404,
+  CONFLICT = 409,
+  TOO_MANY_REQUESTS = 429,
+
+  // 5xx Server Errors
+  INTERNAL_SERVER_ERROR = 500,
+  SERVICE_UNAVAILABLE = 503,
+}
+```
+
+### 2.2 Hata Kodları ve Açıklamaları
+
+```typescript
+enum ErrorCodes {
+  // Validation Errors (400)
+  VALIDATION_ERROR = "VALIDATION_ERROR",
+  INVALID_PARAMETERS = "INVALID_PARAMETERS",
+
+  // Authentication Errors (401)
+  INVALID_CREDENTIALS = "INVALID_CREDENTIALS",
+  TOKEN_EXPIRED = "TOKEN_EXPIRED",
+
+  // Authorization Errors (403)
+  INSUFFICIENT_PERMISSIONS = "INSUFFICIENT_PERMISSIONS",
+
+  // Resource Errors (404)
+  RESOURCE_NOT_FOUND = "RESOURCE_NOT_FOUND",
+
+  // Rate Limiting (429)
+  RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED",
+
+  // Server Errors (500)
+  INTERNAL_ERROR = "INTERNAL_ERROR",
+  DATABASE_ERROR = "DATABASE_ERROR",
+}
+```
+
+### 2.3 Global Hata Yönetimi
+
+```typescript
+// Global Error Handler Middleware
+@Catch()
+export class GlobalExceptionFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+
+    const errorResponse = this.formatError(exception);
+
+    response.status(errorResponse.statusCode).json({
+      success: false,
+      error: errorResponse,
+    });
+  }
+
+  private formatError(error: unknown): ErrorResponse {
+    // Error formatting logic
+  }
+}
+```
+
+## 3. Kimlik Doğrulama ve Yetkilendirme
+
+### 3.1 JWT Yapılandırması
+
+```typescript
+interface JWTConfig {
+  accessToken: {
+    secret: string;
+    expiresIn: "15m"; // 15 dakika
+  };
+  refreshToken: {
+    secret: string;
+    expiresIn: "7d"; // 7 gün
+  };
+}
+
+interface TokenPayload {
+  sub: string; // User ID
+  email: string;
+  roles: string[];
+  permissions: string[];
+}
+```
+
+### 3.2 RBAC Yapılandırması
+
+```typescript
+enum UserRole {
+  ADMIN = "admin",
+  USER = "user",
+  ANALYST = "analyst",
+}
+
+interface Permission {
+  action: "create" | "read" | "update" | "delete";
+  resource: string;
+}
+
+const rolePermissions: Record<UserRole, Permission[]> = {
+  [UserRole.ADMIN]: [
+    { action: "create", resource: "*" },
+    { action: "read", resource: "*" },
+    { action: "update", resource: "*" },
+    { action: "delete", resource: "*" },
+  ],
+  [UserRole.USER]: [
+    { action: "read", resource: "trackers" },
+    { action: "read", resource: "analysis" },
+  ],
+  [UserRole.ANALYST]: [
+    { action: "read", resource: "trackers" },
+    { action: "create", resource: "analysis" },
+    { action: "update", resource: "analysis" },
+  ],
+};
+```
+
+## 4. API Güvenliği ve Rate Limiting
+
+### 4.1 Rate Limiting Yapılandırması
+
+```typescript
+interface RateLimitConfig {
+  public: {
+    windowMs: 15 * 60 * 1000;  // 15 dakika
+    max: 100;                   // IP başına maksimum istek
+  };
+  authenticated: {
+    windowMs: 15 * 60 * 1000;  // 15 dakika
+    max: 1000;                 // Token başına maksimum istek
+  };
+  premium: {
+    windowMs: 15 * 60 * 1000;  // 15 dakika
+    max: 5000;                 // Premium kullanıcı başına maksimum istek
+  };
+}
+```
+
+### 4.2 Güvenlik Headers
+
+```typescript
+// Security Middleware Configuration
+const securityConfig = {
+  headers: {
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block",
+    "X-Content-Type-Options": "nosniff",
+    "Content-Security-Policy": "default-src 'self'",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+  },
+};
+```
+
+## 5. API Versiyonlama
+
+### 5.1 Versiyon Yönetimi
+
+```typescript
+// URL-based versioning
+/api/v1/trackers
+/api/v2/trackers
+
+// Header-based versioning
+Accept: application/json; version=1.0
+Accept: application/json; version=2.0
+
+// Custom header versioning
+X-API-Version: 1.0
+X-API-Version: 2.0
+```
+
+### 5.2 Versiyon Geçiş Stratejisi
+
+```yaml
+Versiyon Geçiş Planı: 1. Yeni versiyon duyurusu (3 ay önce)
+  2. Beta sürüm yayını
+  3. Eski versiyon deprecation uyarıları
+  4. Yeni versiyona geçiş dönemi (6 ay)
+  5. Eski versiyon desteğinin sonlandırılması
+```
+
+## 6. API Dokümantasyonu
+
+### 6.1 OpenAPI (Swagger) Yapılandırması
+
+```yaml
+openapi: 3.0.0
+info:
+  title: Dijital Ayak İzi İzleyici API
+  version: 1.0.0
+  description: API documentation for Digital Footprint Tracker
+
+servers:
+  - url: https://api.digitalfootprint.com/v1
+    description: Production server
+  - url: https://staging-api.digitalfootprint.com/v1
+    description: Staging server
+
+paths:
+  /trackers:
+    get:
+      summary: List all trackers
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackerList"
+```
+
+### 6.2 API Endpoint Dokümantasyonu
+
+```typescript
+/**
+ * @api {post} /api/v1/analysis/start Start Analysis
+ * @apiName StartAnalysis
+ * @apiGroup Analysis
+ * @apiVersion 1.0.0
+ *
+ * @apiParam {String} url Website URL to analyze
+ * @apiParam {Object} [options] Analysis options
+ * @apiParam {Boolean} [options.detailed=false] Include detailed analysis
+ *
+ * @apiSuccess {Boolean} success Always true
+ * @apiSuccess {Object} data Analysis result data
+ * @apiSuccess {String} data.id Analysis ID
+ * @apiSuccess {String} data.status Analysis status
+ *
+ * @apiError (400) {Object} error Error information
+ * @apiError (400) {String} error.code Error code
+ * @apiError (400) {String} error.message Error message
+ */
+```
+
+### 6.3 Postman Collection Yapısı
+
+```json
+{
+  "info": {
+    "name": "Digital Footprint API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+```
