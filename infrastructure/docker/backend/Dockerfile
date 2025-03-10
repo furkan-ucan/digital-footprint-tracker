@@ -37,20 +37,16 @@ FROM node:18-alpine AS production
 WORKDIR /app
 
 # NODE_ENV ayarla ve gerekli dosyaları kopyala
-ENV NODE_ENV production
+ENV NODE_ENV=production
 ARG APP_ENV=production
-ENV APP_ENV ${APP_ENV}
+ENV APP_ENV=${APP_ENV}
 
 # Sadece gerekli dosyaları kopyala
 COPY --from=build /app/packages/backend/dist /app/dist
 COPY --from=build /app/packages/backend/package.json /app/package.json
 COPY --from=build /app/packages/common/dist /app/node_modules/@digital-footprint-tracker/common/dist
 COPY --from=build /app/packages/common/package.json /app/node_modules/@digital-footprint-tracker/common/package.json
-
-# Sadece üretim bağımlılıklarını yükle
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-    cd /app && \
-    npm install --omit=dev --ignore-scripts
+COPY --from=build /app/node_modules ./node_modules
 
 # Sıkılaştırma ve güvenlik
 USER node
